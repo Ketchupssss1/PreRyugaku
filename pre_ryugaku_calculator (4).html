@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プレ留学 料金計算ツール</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f9f9f7; color: #1a1a1a; padding: 2rem 1rem; }
+.container { max-width: 640px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 2rem; border: 0.5px solid #e0e0d8; }
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 1.5rem; }
+.section { margin-bottom: 1.5rem; }
+label { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
+input[type="date"] { padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; width: 100%; max-width: 240px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.notice { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-top: 1rem; }
+.notice span { font-size: 14px; font-weight: 600; color: #b45309; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>プレ留学 料金計算ツール</h1>
+  <div class="section">
+    <label>渡航日（出発日）</label>
+    <input type="date" id="departure" oninput="calc()" />
+    <div id="dep-note" style="font-size:13px;color:#b7770d;background:#fef9e7;border-radius:8px;padding:8px 12px;margin-top:8px;display:none;">渡航日を入力すると料金が表示されます。</div>
+  </div>
+  <div class="section">
+    <label>プレ留学 開始日</label>
+    <div id="start-btns" class="btn-row"></div>
+    <div id="start-note" style="font-size:12px;color:#888;margin-top:6px;"></div>
+  </div>
+  <div class="section">
+    <label>スクールウィズ留学 週数</label>
+    <div id="study-btns" class="btn-row"></div>
+  </div>
+  <div class="section">
+    <label>プレ留学 カリキュラム週数</label>
+    <div id="pre-btns" class="btn-row"></div>
+  </div>
+  <div id="result-area"></div>
+  <div class="notice">
+    <span>※上記料金は、お客様の入力情報をもとに算出されています。<br>お申込み内容により、実際のご請求額が異なる場合がございます。</span>
+  </div>
+</div>
+<script>
+var D=[
+  ['2026-04-27','2026-04-17'],['2026-05-11','2026-05-01'],['2026-05-25','2026-05-15'],
+  ['2026-06-08','2026-05-29'],['2026-06-22','2026-06-12'],['2026-07-06','2026-06-26'],
+  ['2026-07-21','2026-07-10'],['2026-08-03','2026-07-24'],['2026-08-17','2026-08-07'],
+  ['2026-08-31','2026-08-21'],['2026-09-14','2026-09-04'],['2026-09-28','2026-09-18'],
+  ['2026-10-13','2026-10-02'],['2026-10-26','2026-10-16'],['2026-11-09','2026-10-30'],
+  ['2026-11-24','2026-11-13'],['2026-12-07','2026-11-27'],['2026-12-21','2026-12-11'],
+  ['2027-01-04','2026-12-25'],['2027-02-01','2027-01-22'],['2027-02-15','2027-02-05'],
+  ['2027-03-01','2027-02-19'],['2027-03-15','2027-03-05'],['2027-03-29','2027-03-19'],
+  ['2027-04-12','2027-04-02'],['2027-04-26','2027-04-16'],['2027-05-10','2027-04-30'],
+  ['2027-05-24','2027-05-14'],['2027-06-07','2027-05-28'],['2027-06-21','2027-06-11'],
+  ['2027-07-05','2027-06-25'],['2027-07-20','2027-07-09'],['2027-08-02','2027-07-23'],
+  ['2027-08-16','2027-08-06'],['2027-08-30','2027-08-20'],['2027-09-13','2027-09-03'],
+  ['2027-09-27','2027-09-17'],['2027-10-12','2027-10-01'],['2027-10-25','2027-10-15'],
+  ['2027-11-08','2027-10-29'],['2027-11-22','2027-11-12'],['2027-12-06','2027-11-26'],
+  ['2027-12-20','2027-12-10'],['2028-01-03','2027-12-24'],['2028-01-17','2028-01-07'],
+  ['2028-01-31','2028-01-21'],['2028-02-14','2028-02-04'],['2028-02-28','2028-02-18'],
+  ['2028-03-13','2028-03-03'],['2028-03-27','2028-03-17'],['2028-04-10','2028-03-31'],
+  ['2028-04-24','2028-04-14'],['2028-05-08','2028-04-28'],['2028-05-22','2028-05-12'],
+  ['2028-06-05','2028-05-26'],['2028-06-19','2028-06-09'],['2028-06-26','2028-06-16'],
+  ['2028-07-03','2028-06-23'],['2028-07-10','2028-06-30'],['2028-07-18','2028-07-07'],
+  ['2028-07-24','2028-07-14'],['2028-07-31','2028-07-21'],['2028-08-07','2028-07-28'],
+  ['2028-08-14','2028-08-04'],['2028-08-21','2028-08-11'],['2028-08-28','2028-08-18'],
+  ['2028-09-04','2028-08-25'],['2028-09-11','2028-09-01'],['2028-09-19','2028-09-08'],
+  ['2028-09-25','2028-09-15'],['2028-10-02','2028-09-22'],['2028-10-10','2028-09-29'],
+  ['2028-10-16','2028-10-06'],['2028-10-23','2028-10-13'],['2028-10-30','2028-10-20'],
+  ['2028-11-06','2028-10-27'],['2028-11-13','2028-11-03'],['2028-11-20','2028-11-10'],
+  ['2028-11-27','2028-11-17'],['2028-12-04','2028-11-24'],['2028-12-11','2028-12-01'],
+  ['2028-12-18','2028-12-08'],['2028-12-25','2028-12-15'],['2029-01-02','2028-12-22'],
+  ['2029-01-09','2028-12-29'],['2029-01-15','2029-01-05'],['2029-01-22','2029-01-12'],
+  ['2029-01-29','2029-01-19'],['2029-02-05','2029-01-26'],['2029-02-13','2029-02-02'],
+  ['2029-02-19','2029-02-09'],['2029-02-26','2029-02-16'],['2029-03-05','2029-02-23'],
+  ['2029-03-12','2029-03-02'],['2029-03-19','2029-03-09'],['2029-03-26','2029-03-16']
+];
+
+var now=new Date();
+function pd(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function getDeadline(s){var d=pd(s);d.setHours(12,0,0,0);return d;}
+function getActive(){var a=[];for(var i=0;i<D.length;i++){if(getDeadline(D[i][1])>now){a.push({date:pd(D[i][0]),deadline:getDeadline(D[i][1])});if(a.length>=4)break;}}return a;}
+
+var starts=getActive();
+var preOpts=[2,4,8,12,16,20,24];
+var studyOpts=[{v:0,l:'4週未満'},{v:4,l:'4〜7週'},{v:8,l:'8〜11週'},{v:12,l:'12〜15週'},{v:16,l:'16〜19週'},{v:20,l:'20〜23週'},{v:24,l:'24週以上'}];
+var sw=0,sl='4週未満',pw=2,si=null;
+var SO='padding:8px 14px;border-radius:8px;border:1px solid #aaa;background:#fff;color:#333;font-size:14px;cursor:pointer;';
+var SN='padding:8px 14px;border-radius:8px;border:2px solid #1a6ed8;background:#dbeafe;color:#1a6ed8;font-size:14px;cursor:pointer;font-weight:600;';
+var days=['日','月','火','水','木','金','土'];
+function fd(d){return(d.getMonth()+1)+'月'+d.getDate()+'日('+days[d.getDay()]+')';}
+function fdl(d){return fd(d)+' 12:00';}
+function ad(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function gd(s,w){return ad(s,(w-1)*7+4);}
+function actBtn(c,b){var bs=c.getElementsByTagName('button');for(var i=0;i<bs.length;i++)bs[i].setAttribute('style',SO);b.setAttribute('style',SN);}
+
+function buildS(){
+  var c=document.getElementById('start-btns');c.innerHTML='';
+  if(!starts.length){c.innerHTML='<span style="font-size:13px;color:#c0392b;">現在申し込み可能な開始日がありません。</span>';return;}
+  starts.forEach(function(s,i){
+    var b=document.createElement('button');b.textContent=fd(s.date);
+    b.setAttribute('style',i===0?SN:SO);
+    b.onclick=function(){si=i;actBtn(c,b);calc();};
+    c.appendChild(b);
+  });si=0;
+}
+function buildSt(){
+  var c=document.getElementById('study-btns');c.innerHTML='';
+  studyOpts.forEach(function(o,i){
+    var b=document.createElement('button');b.textContent=o.l;
+    b.setAttribute('style',i===0?SN:SO);
+    b.onclick=function(){sw=o.v;sl=o.l;actBtn(c,b);calc();};
+    c.appendChild(b);
+  });
+}
+function buildP(){
+  var c=document.getElementById('pre-btns');c.innerHTML='';
+  preOpts.forEach(function(w,i){
+    var b=document.createElement('button');b.textContent=w+'週';
+    b.setAttribute('style',i===0?SN:SO);
+    b.onclick=function(){pw=w;actBtn(c,b);calc();};
+    c.appendChild(b);
+  });
+}
+
+function fee(w){return Math.round(w*1122.5);}
+function mfw(v){if(v<4)return 0;var c=[4,8,12,16,20,24],f=0;for(var i=0;i<c.length;i++){if(v>=c[i])f=c[i];}return f;}
+
+function calc(){
+  var dep=document.getElementById('departure').value;
+  var ra=document.getElementById('result-area');
+  var note=document.getElementById('start-note');
+  var dn=document.getElementById('dep-note');
+  ra.innerHTML='';
+  if(si===null||!starts.length){note.innerHTML='';dn.style.display='none';ra.innerHTML='<div style="padding:10px 14px;border-radius:8px;background:#fef0f0;color:#c0392b;font-size:13px;">現在申し込み可能な開始日がありません。</div>';return;}
+  var s=starts[si];
+  var sd=new Date(s.date);sd.setHours(0,0,0,0);
+  var grad=gd(sd,pw);
+  var ms=s.deadline-now,hl=Math.floor(ms/3600000),dl=Math.floor(hl/24);
+  note.innerHTML='申し込み締切：<strong>'+fdl(s.deadline)+'</strong>（'+(dl>0?'あと'+dl+'日':'あと'+hl+'時間')+'）';
+  var gh='<div style="background:#f5f5f2;border-radius:8px;padding:1rem;font-size:13px;margin-bottom:12px;">卒業日：<strong>'+fd(grad)+'</strong>（'+pw+'週目の金曜日）</div>';
+  if(!dep){dn.style.display='block';ra.innerHTML=gh;return;}
+  dn.style.display='none';
+  var dd=new Date(dep);dd.setHours(0,0,0,0);
+  var d1=Math.round((dd-sd)/86400000);
+  var d2=Math.round((dd-grad)/86400000);
+  ra.innerHTML=gh;
+  if(d1<=14){ra.innerHTML+='<div style="padding:10px 14px;border-radius:8px;background:#fef0f0;color:#c0392b;font-size:13px;">プレ留学開始日から渡航日まで2週間以下のため申し込みできません。開始日または渡航日を変更してください。</div>';return;}
+  if(d2<0){var od=Math.abs(d2);if(pw>=4&&od<=7){ra.innerHTML+='<div style="padding:10px 14px;border-radius:8px;background:#dbeafe;color:#1a6ed8;font-size:13px;">卒業日（'+fd(grad)+'）が渡航日の'+od+'日後となりますが、お申し込みは可能です。</div>';}else{ra.innerHTML+='<div style="padding:10px 14px;border-radius:8px;background:#fef0f0;color:#c0392b;font-size:13px;">卒業日（'+fd(grad)+'）が渡航日より'+od+'日後のため申し込みできません。プレ留学の週数を減らすか、渡航日を変更してください。</div>';return;}}
+  var sf=fee(pw),fw=mfw(sw),dw=Math.min(pw,fw),disc=fee(dw),total=9900+sf-disc;
+  var h='<div style="border-top:1px solid #e0e0d8;padding-top:1.25rem;margin-top:0.5rem;display:grid;gap:10px;"><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">';
+  h+='<div style="background:#f5f5f2;border-radius:8px;padding:1rem;"><div style="font-size:12px;color:#888;margin-bottom:4px;">入会金</div><div style="font-size:20px;font-weight:500;">¥9,900</div></div>';
+  h+='<div style="background:#f5f5f2;border-radius:8px;padding:1rem;"><div style="font-size:12px;color:#888;margin-bottom:4px;">サービス利用料（'+pw+'週）</div><div style="font-size:20px;font-weight:500;">¥'+sf.toLocaleString()+'</div></div>';
+  if(disc>0)h+='<div style="background:#f5f5f2;border-radius:8px;padding:1rem;"><div style="font-size:12px;color:#888;margin-bottom:4px;">留学割引（'+dw+'週分）</div><div style="font-size:20px;font-weight:500;color:#1e8449;">-¥'+disc.toLocaleString()+'</div></div>';
+  h+='<div style="background:#dbeafe;border-radius:8px;padding:1rem;"><div style="font-size:12px;color:#1a6ed8;margin-bottom:4px;">お支払い合計</div><div style="font-size:24px;font-weight:600;color:#1a6ed8;">¥'+total.toLocaleString()+'</div></div></div>';
+  h+=disc>0?'<div style="padding:10px 14px;border-radius:8px;background:#eafaf1;color:#1e8449;font-size:13px;">留学'+sl+'のため、プレ留学'+dw+'週分のサービス利用料が無料になります。</div>':'<div style="padding:10px 14px;border-radius:8px;background:#fef9e7;color:#b7770d;font-size:13px;">留学4週未満のため、留学割引は適用されません。</div>';
+  h+='</div>';ra.innerHTML+=h;
+}
+buildS();buildSt();buildP();calc();
+</script>
+</body>
+</html>
