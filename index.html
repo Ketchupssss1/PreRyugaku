@@ -82,7 +82,7 @@ var D=[
 var now=new Date();
 function pd(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
 function getDeadline(s){var d=pd(s);d.setHours(12,0,0,0);return d;}
-function getActive(){var a=[];for(var i=0;i<D.length;i++){if(getDeadline(D[i][1])>now){a.push({date:pd(D[i][0]),deadline:getDeadline(D[i][1])});if(a.length>=4)break;}}return a;}
+function getActive(){var a=[];for(var i=0;i<D.length;i++){if(getDeadline(D[i][1])>now){a.push({date:pd(D[i][0]),deadline:getDeadline(D[i][1])});if(a.length>=5)break;}}return a;}
 
 var starts=getActive();
 var preOpts=[2,4,8,12,16,20,24];
